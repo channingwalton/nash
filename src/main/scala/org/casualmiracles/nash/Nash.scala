@@ -6,7 +6,7 @@ import javax.script.{Invocable, ScriptEngineManager}
 import scala.io.Source
 import scala.collection.JavaConversions._
 
-object Hack {
+class Nash(migrationsDir: File) {
 
   val helpers =
     s"""
@@ -22,23 +22,25 @@ object Hack {
 
   engine.eval(helpers)
 
-  def runMigrations(migrationsDir: File): List[String] = {
-    val objects = """{"version": 1, "name":"channing"}""" :: """{"version": 1, "name":"lance"}""" :: Nil
+  val migrations = migrationsDir.listFiles(new FilenameFilter {
+    override def accept(dir: File, name: String) = name.endsWith("js")
+  }).map(f ⇒ Source.fromFile(f).getLines().mkString("\n")).toList
 
-    val migrations = migrationsDir.listFiles(new FilenameFilter {
-      override def accept(dir: File, name: String) = name.endsWith("js")
-    }).map(f ⇒ Source.fromFile(f).getLines().mkString("\n")).toList
-
+  def runMigrations(objects: List[String]): List[String] =
     objects map migrate(migrations)
-  }
 
   def migrate(migrations: List[String])(json: String): String =
     migrations.foldLeft(json) { (data, script) ⇒
       engine.eval(script)
       runner.invokeFunction("runMigration", data).asInstanceOf[String]
     }
+}
 
+object Nash {
   def main(args: Array[String]): Unit = {
-    println("Final result:" + runMigrations(new File("migrations")))
+    val nash = new Nash(new File("migrations"))
+    val objects = """{"version": 1, "name":"channing"}""" :: """{"version": 1, "name":"lance"}""" :: Nil
+
+    println("Final result:" + nash.runMigrations(objects))
   }
 }
