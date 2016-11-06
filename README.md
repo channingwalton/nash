@@ -16,15 +16,15 @@ val nash = new Nash(new File("migrations"))
 Assume some JSON that looks like this:
 
 ```js
-{"version": 1, "name":"channing"}
-{"version": 1, "name":"lance"}
+{"name":"channing"}
+{"name":"lance"}
 ```
 
-and in the migrations directory there is a file `001_add_version.js`
+and in the migrations directory there is a file `001_add_age_field.js`
 
 ```js
 var migrate = function(json) {
-  json.version=2
+  json.age=0
   return json;
 };
 ```
@@ -32,8 +32,8 @@ var migrate = function(json) {
 Running `nash(objects)` will yield
 
 ```js
-{"version":2,"name":"channing"}
-{"version":2,"name":"lance"}
+{"nashVersion":1, "name":"channing", "age": 0}
+{"nashVersion":1, "name":"lance", "age": 0}
 ```
 
 Rules of Engagement
