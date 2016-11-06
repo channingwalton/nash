@@ -8,7 +8,7 @@ import scala.collection.JavaConversions._
 
 class Nash(migrationsDir: File) {
 
-  val helpers =
+  private val helpers =
     s"""
        |var runMigration = function(text) {
        |  var obj = JSON.parse(text);
@@ -17,19 +17,19 @@ class Nash(migrationsDir: File) {
        |}
      """.stripMargin
 
-  val engine = new ScriptEngineManager().getEngineByName("nashorn")
-  val runner = engine.asInstanceOf[Invocable]
+  private val engine = new ScriptEngineManager().getEngineByName("nashorn")
+  private val runner = engine.asInstanceOf[Invocable]
 
   engine.eval(helpers)
 
-  val migrations = migrationsDir.listFiles(new FilenameFilter {
+  private val migrations = migrationsDir.listFiles(new FilenameFilter {
     override def accept(dir: File, name: String) = name.endsWith("js")
   }).map(f ⇒ Source.fromFile(f).getLines().mkString("\n")).toList
 
   def runMigrations(objects: List[String]): List[String] =
     objects map migrate(migrations)
 
-  def migrate(migrations: List[String])(json: String): String =
+  private def migrate(migrations: List[String])(json: String): String =
     migrations.foldLeft(json) { (data, script) ⇒
       engine.eval(script)
       runner.invokeFunction("runMigration", data).asInstanceOf[String]
