@@ -15,7 +15,7 @@ class Nash(migrationsDir: File) {
        |var runMigration = function(text, version) {
        |  var obj = JSON.parse(text);
        |  var result;
-       |  if (obj.nashVersion > version) {
+       |  if (obj.nashVersion >= version) {
        |    result = obj;
        |  } else {
        |    result = migrate(obj)
@@ -46,10 +46,8 @@ class Nash(migrationsDir: File) {
 
   private def migrate(migrations: List[Migration])(json: String): String =
     migrations.foldLeft(json) { (data, migration) ⇒
-      println(migration.version)
       engine.eval(migration.script)
-      val r = runner.invokeFunction("runMigration", data, migration.version.asInstanceOf[Integer]).asInstanceOf[String]
-      r
+      runner.invokeFunction("runMigration", data, migration.version.asInstanceOf[Integer]).asInstanceOf[String]
     }
 }
 

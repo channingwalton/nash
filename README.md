@@ -39,7 +39,8 @@ Running `nash(objects)` will yield
 Rules of Engagement
 ---
 Scripts must be named with a numeric prefix to ensure ordering and prevent
-scripts from being applied twice.
+scripts from being applied twice. eg `1_add_foo.js` or
+(equivalently) `0001_add_foo.js` if you want to organise the files conveniently.
 
 A migrated object will have a version number field added called `nashVersion`.
 
