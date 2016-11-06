@@ -36,6 +36,8 @@ Running `nash(objects)` will yield
 {"nashVersion":1, "name":"lance", "age": 0}
 ```
 
+A full example is in [NashExample.scala](src/test/scala/NashExample.scala)
+
 Rules of Engagement
 ---
 Scripts must be named with a numeric prefix to ensure ordering. eg `1_add_foo.js` or
