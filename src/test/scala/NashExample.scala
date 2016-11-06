@@ -8,5 +8,6 @@ object NashExample {
     val objects = """{"name":"channing"}""" :: """{"name":"lance"}""" :: Nil
 
     println(nash(objects))
+    // List({"name":"channing","age":0,"nashVersion":2,"dob":""}, {"name":"lance","age":0,"nashVersion":2,"dob":""})
   }
 }
