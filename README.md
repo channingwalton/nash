@@ -20,7 +20,7 @@ Assume some JSON that looks like this:
 {"version": 1, "name":"lance"}
 ```
 
-and in the migrations directory there is a file `001_bump_version`
+and in the migrations directory there is a file `001_add_version.js`
 
 ```js
 var migrate = function(json) {
@@ -40,3 +40,5 @@ Rules of Engagement
 ---
 Scripts are sorted before being applied, so it is probably wise
 to name them with a numeric prefix such as in the example above.
+
+Scripts must end with a `js` extension.
