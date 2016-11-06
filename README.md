@@ -2,7 +2,7 @@ Nash
 ===
 
 This is a JSON object migration tool using Java 8's Nashorn engine to
-apply migration scripts written in Javascript to JSON objects.
+apply migration scripts, written in Javascript, to JSON objects.
 
 An Example:
 ---
