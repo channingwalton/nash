@@ -35,3 +35,8 @@ Running `nash(objects)` will yield
 {"version":2,"name":"channing"}
 {"version":2,"name":"lance"}
 ```
+
+Rules of Engagement
+---
+Scripts are sorted before being applied, so it is probably wise
+to name them with a numeric prefix such as in the example above.

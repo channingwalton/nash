@@ -24,7 +24,7 @@ class Nash(migrationsDir: File) {
 
   private val migrations = migrationsDir.listFiles(new FilenameFilter {
     override def accept(dir: File, name: String) = name.endsWith("js")
-  }).map(f ⇒ Source.fromFile(f).getLines().mkString("\n")).toList
+  }).toList.sortBy(_.getName).map(f ⇒ Source.fromFile(f).getLines().mkString("\n"))
 
   def apply(objects: List[String]): List[String] =
     objects map migrate(migrations)
