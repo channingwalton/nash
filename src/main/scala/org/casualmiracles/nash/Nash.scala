@@ -26,7 +26,7 @@ class Nash(migrationsDir: File) {
     override def accept(dir: File, name: String) = name.endsWith("js")
   }).map(f ⇒ Source.fromFile(f).getLines().mkString("\n")).toList
 
-  def runMigrations(objects: List[String]): List[String] =
+  def apply(objects: List[String]): List[String] =
     objects map migrate(migrations)
 
   private def migrate(migrations: List[String])(json: String): String =
@@ -41,6 +41,6 @@ object Nash {
     val nash = new Nash(new File("migrations"))
     val objects = """{"version": 1, "name":"channing"}""" :: """{"version": 1, "name":"lance"}""" :: Nil
 
-    println("Final result:" + nash.runMigrations(objects))
+    println("Final result:" + nash(objects))
   }
 }
