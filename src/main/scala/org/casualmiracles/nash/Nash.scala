@@ -50,12 +50,3 @@ class Nash(migrationsDir: File) {
       runner.invokeFunction("runMigration", data, migration.version.asInstanceOf[Integer]).asInstanceOf[String]
     }
 }
-
-object Nash {
-  def main(args: Array[String]): Unit = {
-    val nash = new Nash(new File("migrations"))
-    val objects = """{"name":"channing"}""" :: """{"name":"lance"}""" :: Nil
-
-    println("Final result:" + nash(objects))
-  }
-}
