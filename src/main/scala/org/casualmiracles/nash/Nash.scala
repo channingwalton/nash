@@ -8,12 +8,21 @@ import scala.collection.JavaConversions._
 
 class Nash(migrationsDir: File) {
 
+  case class Migration(version: Int, script: String)
+
   private val helpers =
     s"""
-       |var runMigration = function(text) {
+       |var runMigration = function(text, version) {
        |  var obj = JSON.parse(text);
-       |  var migrated = migrate(obj)
-       |  return JSON.stringify(migrated);
+       |  var result;
+       |  if (obj.nashVersion > version) {
+       |    result = obj;
+       |  } else {
+       |    result = migrate(obj)
+       |    result.nashVersion = version
+       |  }
+       |
+       |  return JSON.stringify(result);
        |}
      """.stripMargin
 
@@ -24,22 +33,30 @@ class Nash(migrationsDir: File) {
 
   private val migrations = migrationsDir.listFiles(new FilenameFilter {
     override def accept(dir: File, name: String) = name.endsWith("js")
-  }).toList.sortBy(_.getName).map(f ⇒ Source.fromFile(f).getLines().mkString("\n"))
+  }).toList.map(toMigrations).sortBy(_.version)
+
+  private def toMigrations(f: File): Migration = {
+    val version = f.getName.substring(0, f.getName.indexOf("_")).toInt
+    val script = Source.fromFile(f).getLines().mkString("\n")
+    Migration(version, script)
+  }
 
   def apply(objects: List[String]): List[String] =
     objects map migrate(migrations)
 
-  private def migrate(migrations: List[String])(json: String): String =
-    migrations.foldLeft(json) { (data, script) ⇒
-      engine.eval(script)
-      runner.invokeFunction("runMigration", data).asInstanceOf[String]
+  private def migrate(migrations: List[Migration])(json: String): String =
+    migrations.foldLeft(json) { (data, migration) ⇒
+      println(migration.version)
+      engine.eval(migration.script)
+      val r = runner.invokeFunction("runMigration", data, migration.version.asInstanceOf[Integer]).asInstanceOf[String]
+      r
     }
 }
 
 object Nash {
   def main(args: Array[String]): Unit = {
     val nash = new Nash(new File("migrations"))
-    val objects = """{"version": 1, "name":"channing"}""" :: """{"version": 1, "name":"lance"}""" :: Nil
+    val objects = """{"name":"channing"}""" :: """{"name":"lance"}""" :: Nil
 
     println("Final result:" + nash(objects))
   }

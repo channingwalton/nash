@@ -1,4 +1,4 @@
 var migrate = function(json) {
-  json.version=2
+  json.age=0
   return json;
 };
