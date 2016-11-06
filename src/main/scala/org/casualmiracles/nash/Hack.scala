@@ -30,8 +30,6 @@ object Hack {
 
 
   def main(args: Array[String]): Unit = {
-    println("Complete result of migration")
-    println(runMigrations)
+    println("Final result:" + runMigrations)
   }
-
 }
