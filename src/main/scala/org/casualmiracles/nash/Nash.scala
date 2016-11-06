@@ -1,7 +1,7 @@
 package org.casualmiracles.nash
 
 import java.io.{File, FilenameFilter}
-import javax.script.{Invocable, ScriptEngineManager}
+import javax.script.{Invocable, ScriptEngine, ScriptEngineManager}
 
 import scala.io.Source
 import scala.collection.JavaConversions._
@@ -26,13 +26,13 @@ class Nash(migrationsDir: File) {
        |}
      """.stripMargin
 
-  private val engine = new ScriptEngineManager().getEngineByName("nashorn")
-  private val runner = engine.asInstanceOf[Invocable]
+  private val engine: ScriptEngine = new ScriptEngineManager().getEngineByName("nashorn")
+  private val runner: Invocable = engine.asInstanceOf[Invocable]
 
   engine.eval(helpers)
 
-  private val migrations = migrationsDir.listFiles(new FilenameFilter {
-    override def accept(dir: File, name: String) = name.endsWith("js")
+  private val migrations: List[Migration] = migrationsDir.listFiles(new FilenameFilter {
+    override def accept(dir: File, name: String): Boolean = name.endsWith("js")
   }).toList.map(toMigrations).sortBy(_.version)
 
   private def toMigrations(f: File): Migration = {
