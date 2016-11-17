@@ -74,13 +74,9 @@ class Nash(migrationsDir: File) {
     }
 
   private def sequence[A, B](e: List[Either[A, B]]): Either[List[A], List[B]] = {
-    if (e.exists(_.isLeft))
-      Left(e.collect {
-        case Left(v) ⇒ v
-      })
-    else
-      Right(e.collect {
-        case Right(v) ⇒ v
-      })
+    e.partition(_.isLeft) match {
+      case (Nil,  r) => Right(for(Right(i) <- r) yield i)
+      case (l, _)    => Left(for(Left(s) <- l) yield s)
+    }
   }
 }
