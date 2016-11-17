@@ -1,10 +1,9 @@
 package org.casualmiracles.nash
 
-import java.io.{File, FilenameFilter, Serializable}
+import java.io.{File, FilenameFilter}
 import javax.script.{Invocable, ScriptEngine, ScriptEngineManager}
 
 import scala.io.Source
-import scala.collection.JavaConversions._
 import scala.util.control.NonFatal
 
 class Nash(migrationsDir: File) {
@@ -36,19 +35,8 @@ class Nash(migrationsDir: File) {
     override def accept(dir: File, name: String): Boolean = name.endsWith("js")
   }).toList
 
-  private val migrations: Either[List[String], List[Migration]] = {
-    val ms: List[Either[String, Migration]] = migrationFiles.map(toMigrations)
-    val lefts = ms.collect {
-      case Left(v) ⇒ v
-    }
-    if (lefts.nonEmpty)
-      Left(lefts)
-    else {
-      Right(ms.collect {
-        case Right(v) ⇒ v
-      }.sortBy(_.version))
-    }
-  }
+  private val migrations: Either[List[String], List[Migration]] =
+    sequence(migrationFiles.map(toMigrations))
 
   private def toMigrations(f: File): Either[String, Migration] =
     for {
@@ -64,11 +52,11 @@ class Nash(migrationsDir: File) {
     }
 
   private def migrationNumber(f: File): Either[String, Int] =
-  try {
-    Right(f.getName.substring(0, f.getName.indexOf("_")).toInt)
-  } catch {
-    case NonFatal(_) ⇒ Left[String, Int](s"Unable to extract a migration number from file ${f.getName}")
-  }
+    try {
+      Right(f.getName.substring(0, f.getName.indexOf("_")).toInt)
+    } catch {
+      case NonFatal(_) ⇒ Left[String, Int](s"Unable to extract a migration number from file ${f.getName}")
+    }
 
   def apply(objects: List[String]): Either[List[String], List[String]] =
     migrations.right.flatMap { migrations ⇒
@@ -85,7 +73,7 @@ class Nash(migrationsDir: File) {
       case NonFatal(e) ⇒ Left(e.getMessage)
     }
 
-  private def sequence(e: List[Either[String, String]]): Either[List[String], List[String]] = {
+  private def sequence[A, B](e: List[Either[A, B]]): Either[List[A], List[B]] = {
     if (e.exists(_.isLeft))
       Left(e.collect {
         case Left(v) ⇒ v
